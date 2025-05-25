@@ -1,0 +1,15 @@
+{% extends "base.html" %} {% load crispy_forms_tags %} {% block title %}تسجيل
+الدخول{% endblock %} {% block content %}
+<div class="form-container">
+  <h2 class="form-title">تسجيل الدخول</h2>
+
+  <form method="post">
+    {% csrf_token %} {{ form|crispy }}
+
+    <div>
+      <button type="submit" class="btn btn-primary">تسجيل الدخول</button>
+      <input type="hidden" name="next" value="{{ next }}" />
+    </div>
+  </form>
+</div>
+{% endblock %}

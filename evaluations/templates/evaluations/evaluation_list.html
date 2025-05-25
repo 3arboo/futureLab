@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mx-auto px-4">
+  <h1 class="text-2xl font-bold mb-4">Evaluations</h1>
+
+  <div class="grid gap-4">
+    {% for evaluation in evaluations %}
+    <div class="border p-4 rounded">
+      <h2 class="font-bold">{{ evaluation.student.get_full_name }}</h2>
+      <p>Project: {{ evaluation.project.title }}</p>
+      <p>Evaluator: {{ evaluation.evaluator.get_full_name }}</p>
+      <a
+        href="{% url 'evaluations:evaluation_detail' evaluation.pk %}"
+        class="text-blue-600 hover:underline"
+      >
+        View Details
+      </a>
+    </div>
+    {% empty %}
+    <p>No evaluations available.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %} {% block title %}قائمة المشاريع{% endblock %} 
+{% block content %}
+<div class="container">
+  <h1 class="page-title">قائمة المشاريع البحثية</h1>
+
+  <h2 class="section-title">برنامج يوم السبت</h2>
+  <div class="projects-grid">
+    {% for project in saturday_projects %}
+    <div class="project-card">
+      <h3>{{ project.title }}</h3>
+      <p>الموعد: {{ project.presentation_time|date:"g:i A" }}</p>
+      <p>المكان: {{ project.location }}</p>
+      <p>عدد الطلاب: {{ project.students.count }}</p>
+      <a
+        href="{% url 'core:project_detail' project.pk %}"
+        class="btn btn-primary"
+        >التفاصيل</a
+      >
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2 class="section-title">جميع المشاريع</h2>
+  <div class="projects-grid">
+    {% for project in projects %}
+    <div class="project-card">
+      <h3>{{ project.title }}</h3>
+      <p>الموعد: {{ project.presentation_time|date:"l g:i A" }}</p>
+      <p>المكان: {{ project.location }}</p>
+      <p>عدد الطلاب: {{ project.students.count }}</p>
+      <a
+        href="{% url 'core:project_detail' project.pk %}"
+        class="btn btn-primary"
+        >التفاصيل</a
+      >
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

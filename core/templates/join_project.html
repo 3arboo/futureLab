@@ -1,0 +1,12 @@
+<!-- templates/join_project.html -->
+<form method="post">
+    {% csrf_token %}
+    <div class="mb-4">
+        <label class="block text-gray-700">اختر مشروعك</label>
+        {{ form.project|add_class:"form-select mt-1 block w-full" }}
+    </div>
+    
+    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
+        انضم للمشروع
+    </button>
+</form>

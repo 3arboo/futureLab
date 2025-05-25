@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block title %}لوحة التحكم{% endblock %} 
+{% block content %}
+<div class="dashboard">
+  <h1 class="page-title">لوحة التحكم</h1>
+
+  <div class="dashboard-grid">
+    <div class="dashboard-card">
+      <h2>المشاريع</h2>
+      <p>عدد المشاريع: {{ projects_count }}</p>
+      <a href="{% url 'core:project_list' %}" class="btn btn-primary"
+        >عرض المشاريع</a
+      >
+    </div>
+
+    {% if user.role == 'A' %}
+    <div class="dashboard-card">
+      <h2>الطلاب</h2>
+      <p>عدد الطلاب: {{ students_count }}</p>
+      <a
+        href="{% url 'admin:core_customuser_changelist' %}?role=S"
+        class="btn btn-primary"
+        >إدارة الطلاب</a
+      >
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

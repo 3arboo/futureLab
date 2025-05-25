@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="error-page">
+  <div class="error-content">
+    <div class="error-animation">
+      <div class="error-code">404</div>
+      <div class="error-icon">
+        <i class="fas fa-map-signs"></i>
+      </div>
+    </div>
+    <h1 class="error-title">عذراً، المسار غير موجود</h1>
+    <p class="error-message">
+      يبدو أن الصفحة التي تبحث عنها غير موجودة أو تم نقلها.
+    </p>
+    <div class="error-actions">
+      <a href="{% url 'core:home' %}" class="btn btn-glow">
+        <i class="fas fa-home"></i>
+        العودة للصفحة الرئيسية
+      </a>
+    </div>
+  </div>
+  <div class="circuit-background"></div>
+</div>
+{% endblock %}

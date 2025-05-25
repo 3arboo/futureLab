@@ -1,0 +1,311 @@
+{% extends "base.html" %} {% load static %} {% block extra_head %}
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  // Set worker path for PDF.js
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+<style>
+  .project-detail {
+    padding: 2rem;
+    direction: rtl;
+  }
+  .project-header {
+    background: linear-gradient(to right, #5a4bff, #695eff);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  .project-title {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  .project-meta span {
+    margin-left: 1.5rem;
+    font-size: 1rem;
+  }
+  .project-section {
+    margin-bottom: 2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .students-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .student-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  .student-avatar {
+    background: #5a4bff;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pdf-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  #pdf-viewer {
+    width: 100%;
+    height: auto;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  #pdf-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="project-detail">
+  <header class="project-header">
+    <h1 class="project-title">{{ project.title }}</h1>
+    <div class="project-meta">
+      <span
+        ><i class="fas fa-clock"></i> {{ project.presentation_time|date:"l, F j,
+        Y - g:i A" }}</span
+      >
+      <span><i class="fas fa-map-marker-alt"></i> {{ project.location }}</span>
+      <span
+        ><i class="fas fa-users"></i> {{ project.students.count }} طلاب</span
+      >
+    </div>
+  </header>
+
+  <div class="project-content">
+    <!-- وصف المشروع -->
+    <section class="project-section">
+      <div class="section-header">
+        <i class="fas fa-info-circle"></i>
+        <h2>وصف المشروع</h2>
+      </div>
+      <p>{{ project.description|linebreaks }}</p>
+    </section>
+
+    <!-- ملف PDF -->
+    {% if project.pdf_file %}
+    <section class="project-section">
+      <div class="section-header">
+        <i class="fas fa-file-pdf"></i>
+        <h2>وثيقة المشروع</h2>
+      </div>
+      <div class="pdf-container">
+        <div id="pdf-controls">
+          <button id="zoom-out" class="btn btn-sm btn-secondary">
+            <i class="fas fa-search-minus"></i>
+          </button>
+          <button id="prev-page" class="btn btn-sm btn-secondary">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span id="page-info"
+            >صفحة <span id="page-num">1</span> من
+            <span id="page-count">1</span></span
+          >
+          <button id="next-page" class="btn btn-sm btn-secondary">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+          <button id="zoom-in" class="btn btn-sm btn-secondary">
+            <i class="fas fa-search-plus"></i>
+          </button>
+          <a
+            href="{{ project.pdf_file.url }}"
+            class="btn btn-sm btn-primary"
+            download
+          >
+            <i class="fas fa-download"></i> تحميل PDF
+          </a>
+        </div>
+        <canvas id="pdf-viewer"></canvas>
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- الطلاب -->
+    <section class="project-section">
+      <div class="section-header">
+        <i class="fas fa-user-graduate"></i>
+        <h2>الطلاب المشاركون</h2>
+      </div>
+      {% if project.students.exists %}
+      <div class="students-grid">
+        {% for student in project.students.all %}
+        <div class="student-card">
+          <div class="student-avatar">{{ student.full_name|first }}</div>
+          <div class="student-info">
+            <h3>{{ student.full_name }}</h3>
+            <p>{{ student.id_student }}</p>
+            {% if student.phone %}
+            <p>{{ student.phone }}</p>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-center">لا يوجد طلاب مسجلين في هذا المشروع حالياً</p>
+      {% endif %}
+    </section>
+  </div>
+</div>
+
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h2>{{ project.title }}</h2>
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <a
+          href="{% url 'core:evaluate_project' project.id %}"
+          class="btn btn-primary"
+          >تقييم المشروع</a
+        >
+      </div>
+
+      <h3>التقييمات السابقة</h3>
+      {% for evaluation in evaluations %}
+      <div class="evaluation-card mb-3">
+        <p>
+          <strong>المقيم:</strong> {{ evaluation.evaluator_name|default:"مجهول"
+          }}
+        </p>
+        <p><strong>التقييم:</strong> {{ evaluation.rating }}/5</p>
+        {% if evaluation.comments %}
+        <p><strong>التعليقات:</strong> {{ evaluation.comments }}</p>
+        {% endif %}
+      </div>
+      {% empty %}
+      <p>لا يوجد تقييمات بعد</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %} {% if project.pdf_file %}
+<script>
+  // PDF.js initialization
+  const url = "{{ project.pdf_file.url }}";
+  let pdfDoc = null,
+    pageNum = 1,
+    pageRendering = false,
+    pageNumPending = null,
+    scale = 1.5,
+    canvas = document.getElementById("pdf-viewer"),
+    ctx = canvas.getContext("2d");
+
+  // Initialize PDF viewer
+  pdfjsLib
+    .getDocument(url)
+    .promise.then(function (pdfDoc_) {
+      pdfDoc = pdfDoc_;
+      document.getElementById("page-count").textContent = pdfDoc.numPages;
+
+      // Initial render of the first page
+      renderPage(pageNum);
+    })
+    .catch(function (error) {
+      console.error("Error loading PDF:", error);
+      const container = document.querySelector(".pdf-container");
+      container.innerHTML =
+        '<p class="error-message">Error loading PDF. Please try downloading instead.</p>';
+    });
+
+  function renderPage(num) {
+    pageRendering = true;
+
+    // Get page
+    pdfDoc.getPage(num).then(function (page) {
+      // Set scale for responsive viewing
+      const viewport = page.getViewport({ scale: scale });
+
+      // Set canvas dimensions
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      // Render PDF page
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport,
+      };
+
+      page.render(renderContext).promise.then(function () {
+        pageRendering = false;
+
+        if (pageNumPending !== null) {
+          renderPage(pageNumPending);
+          pageNumPending = null;
+        }
+      });
+    });
+
+    // Update page counter
+    document.getElementById("page-num").textContent = num;
+  }
+
+  function queueRenderPage(num) {
+    if (pageRendering) {
+      pageNumPending = num;
+    } else {
+      renderPage(num);
+    }
+  }
+
+  // Event handlers for controls
+  document.getElementById("prev-page").addEventListener("click", function () {
+    if (pageNum <= 1) return;
+    pageNum--;
+    queueRenderPage(pageNum);
+  });
+
+  document.getElementById("next-page").addEventListener("click", function () {
+    if (pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    queueRenderPage(pageNum);
+  });
+
+  document.getElementById("zoom-in").addEventListener("click", function () {
+    scale += 0.25;
+    renderPage(pageNum);
+  });
+
+  document.getElementById("zoom-out").addEventListener("click", function () {
+    if (scale <= 0.5) return;
+    scale -= 0.25;
+    renderPage(pageNum);
+  });
+</script>
+{% endif %} {% endblock %}

@@ -1,0 +1,423 @@
+{% extends "base.html" %} {% load static %} {% block extra_head %}
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  // Set worker path for PDF.js
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+</script>
+<style>
+  .project-detail {
+    padding: 2rem;
+    direction: rtl;
+  }
+  .project-header {
+    background: linear-gradient(to right, #5a4bff, #695eff);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  .project-title {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+  .project-meta span {
+    margin-left: 1.5rem;
+    font-size: 1rem;
+  }
+  .project-section {
+    margin-bottom: 2rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .students-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .student-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    width: 250px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  .student-avatar {
+    background: #5a4bff;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 0.5rem;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .pdf-container {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  #pdf-viewer {
+    width: 100%;
+    height: auto;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  #pdf-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+
+  .evaluations-timeline {
+    position: relative;
+    padding: 1rem 0;
+  }
+
+  .evaluation-item {
+    position: relative;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .evaluation-badge {
+    position: absolute;
+    top: 1rem;
+    left: -2rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: white;
+  }
+
+  .evaluation-badge.success {
+    background: #28a745;
+  }
+
+  .evaluation-badge.warning {
+    background: #ffc107;
+  }
+
+  .evaluation-badge.danger {
+    background: #dc3545;
+  }
+
+  .evaluation-content {
+    padding-left: 4rem;
+  }
+
+  .evaluator-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .evaluator-info i {
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+    color: #6c757d;
+  }
+
+  .evaluation-date {
+    font-size: 0.9rem;
+    color: #6c757d;
+  }
+
+  .evaluation-comments {
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #333;
+  }
+
+  .error-message {
+    color: #dc3545;
+    text-align: center;
+    padding: 1rem;
+    background: #f8d7da;
+    border-radius: 8px;
+  }
+
+  .project-hero {
+    background: linear-gradient(to right, #5a4bff, #695eff);
+    color: white;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-header-wrapper {
+    position: relative;
+    z-index: 2;
+  }
+
+  .project-main-info {
+    max-width: 800px;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    margin-right: 2rem;
+    font-size: 0.9rem;
+  }
+
+  .meta-item i {
+    margin-left: 0.5rem;
+    color: #cfd8dc;
+  }
+
+  .project-actions {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    z-index: 2;
+  }
+
+  .project-actions .btn {
+    margin-left: 1rem;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container mt-4">
+    <div class="project-hero">
+        <div class="container">
+            <div class="project-header-wrapper">
+                <div class="project-main-info">
+                    <h1 class="project-title">{{ project.title }}</h1>
+                    <div class="project-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>{{ project.presentation_time|date:"l" }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ project.presentation_time|date:"g:i A" }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ project.location }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="project-actions">
+                    <a href="{% url 'core:evaluate_project' project.id %}" class="btn btn-primary">
+                        <i class="fas fa-star"></i> تقييم المشروع
+                    </a>
+                    {% if project.pdf_file %}
+                    <a href="{{ project.pdf_file.url }}" class="btn btn-outline-primary" target="_blank">
+                        <i class="fas fa-file-pdf"></i> عرض الملف
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+  <div class="row">
+    <!-- PDF Viewer Section -->
+    {% if project.pdf_file %}
+    <div class="col-12 mb-4">
+      <div class="card">
+        <div
+          class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+        >
+          <h3 class="h5 mb-0"><i class="fas fa-file-pdf"></i> ملف المشروع</h3>
+          <a
+            href="{{ project.pdf_file.url }}"
+            class="btn btn-light btn-sm"
+            target="_blank"
+          >
+            <i class="fas fa-external-link-alt"></i> فتح في نافذة جديدة
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div class="pdf-container">
+            <embed
+              src="{{ project.pdf_file.url }}#toolbar=0"
+              type="application/pdf"
+              width="100%"
+              height="600px"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Existing Evaluations Section -->
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="h5 mb-0">التقييمات السابقة</h3>
+        </div>
+        <div class="card-body">
+          <div class="evaluations-timeline">
+            {% for evaluation in evaluations %}
+            <div class="evaluation-item">
+              <div class="evaluation-badge {% if evaluation.rating >= 4 %}success{% elif evaluation.rating >= 3 %}warning{% else %}danger{% endif %}">
+                <span class="rating-number">{{ evaluation.rating }}</span>
+                <small>/5</small>
+              </div>
+              <div class="evaluation-content">
+                <div class="evaluator-info">
+                  <i class="fas fa-user-circle"></i>
+                  <span class="evaluator-name">{{ evaluation.evaluator_name|default:"مقيم مجهول" }}</span>
+                  <span class="evaluation-date">
+                    <i class="fas fa-clock ms-2"></i>
+                    {{ evaluation.created_at|date:"Y/m/d" }}
+                </div>
+                {% if evaluation.comments %}
+                <div class="evaluation-comments">
+                  <i class="fas fa-quote-right"></i>
+                  {{ evaluation.comments }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted py-5">
+              <i class="fas fa-clipboard-list fa-3x mb-3"></i>
+              <h5>لا توجد تقييمات حتى الآن</h5>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <!-- ...existing statistics code... -->
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %} {% if project.pdf_file %}
+<script>
+  // PDF.js initialization
+  const url = "{{ project.pdf_file.url }}";
+  let pdfDoc = null,
+    pageNum = 1,
+    pageRendering = false,
+    pageNumPending = null,
+    scale = 1.5,
+    canvas = document.getElementById("pdf-viewer"),
+    ctx = canvas.getContext("2d");
+
+  // Initialize PDF viewer
+  pdfjsLib
+    .getDocument(url)
+    .promise.then(function (pdfDoc_) {
+      pdfDoc = pdfDoc_;
+      document.getElementById("page-count").textContent = pdfDoc.numPages;
+
+      // Initial render of the first page
+      renderPage(pageNum);
+    })
+    .catch(function (error) {
+      console.error("Error loading PDF:", error);
+      const container = document.querySelector(".pdf-container");
+      container.innerHTML =
+        '<p class="error-message">Error loading PDF. Please try downloading instead.</p>';
+    });
+
+  function renderPage(num) {
+    pageRendering = true;
+
+    // Get page
+    pdfDoc.getPage(num).then(function (page) {
+      // Set scale for responsive viewing
+      const viewport = page.getViewport({ scale: scale });
+
+      // Set canvas dimensions
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+
+      // Render PDF page
+      const renderContext = {
+        canvasContext: ctx,
+        viewport: viewport,
+      };
+
+      page.render(renderContext).promise.then(function () {
+        pageRendering = false;
+
+        if (pageNumPending !== null) {
+          renderPage(pageNumPending);
+          pageNumPending = null;
+        }
+      });
+    });
+
+    // Update page counter
+    document.getElementById("page-num").textContent = num;
+  }
+
+  function queueRenderPage(num) {
+    if (pageRendering) {
+      pageNumPending = num;
+    } else {
+      renderPage(num);
+    }
+  }
+
+  // Event handlers for controls
+  document.getElementById("prev-page").addEventListener("click", function () {
+    if (pageNum <= 1) return;
+    pageNum--;
+    queueRenderPage(pageNum);
+  });
+
+  document.getElementById("next-page").addEventListener("click", function () {
+    if (pageNum >= pdfDoc.numPages) return;
+    pageNum++;
+    queueRenderPage(pageNum);
+  });
+
+  document.getElementById("zoom-in").addEventListener("click", function () {
+    scale += 0.25;
+    renderPage(pageNum);
+  });
+
+  document.getElementById("zoom-out").addEventListener("click", function () {
+    if (scale <= 0.5) return;
+    scale -= 0.25;
+    renderPage(pageNum);
+  });
+</script>
+{% endif %} {% endblock %}

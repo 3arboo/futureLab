@@ -1,0 +1,160 @@
+{% extends "base.html" %} {% load static %} {% block title %}الصفحة الرئيسية {%
+endblock %} {% block content %}
+<div class="bg-white shadow-xl rounded-lg overflow-hidden">
+  <!-- Hero Section -->
+  <div
+    class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-20 px-8"
+  >
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-6">
+        مرحباً بك في نظام التقييم
+      </h1>
+      <p class="text-xl mb-8">
+        منصة متكاملة لتقييم المشاريع والطلاب بكل سهولة وفعالية
+      </p>
+      {% if not user.is_authenticated %}
+      <div class="space-x-4">
+        <a
+          href="{% url 'login' %}"
+          class="bg-white text-indigo-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100"
+          >تسجيل دخول</a
+        >
+        <a
+          href="{% url 'register' %}"
+          class="border-2 border-white text-white px-6 py-3 rounded-md font-semibold hover:bg-white hover:text-indigo-600"
+          >إنشاء حساب</a
+        >
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Features Section -->
+  <div class="py-16 px-8">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold text-center mb-12">مميزات النظام</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Feature 1 -->
+        <div class="text-center p-6 bg-gray-50 rounded-lg">
+          <div
+            class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              ></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">إدارة المشاريع</h3>
+          <p class="text-gray-600">إدارة سهلة وفعالة للمشاريع والتقييمات</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="text-center p-6 bg-gray-50 rounded-lg">
+          <div
+            class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              ></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">إدارة المستخدمين</h3>
+          <p class="text-gray-600">إدارة الطلاب والمقيمين بكفاءة عالية</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="text-center p-6 bg-gray-50 rounded-lg">
+          <div
+            class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              ></path>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">تقارير وإحصائيات</h3>
+          <p class="text-gray-600">تقارير تفصيلية وإحصائيات دقيقة</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container mt-4">
+    <h2>المشاريع القادمة</h2>
+    <div class="row">
+      {% for project in upcoming_projects %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ project.title }}</h5>
+            <p>{{ project.description|truncatewords:30 }}</p>
+            <div class="btn-group">
+              <a
+                href="{% url 'core:project_detail' project.id %}"
+                class="btn btn-primary"
+                >التفاصيل</a
+              >
+              <a
+                href="{% url 'core:evaluate_project' project.id %}"
+                class="btn btn-success"
+                >تقييم المشروع</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p>لا توجد مشاريع قادمة</p>
+      {% endfor %}
+    </div>
+
+    <h2>المشاريع السابقة</h2>
+    <div class="row">
+      {% for project in past_projects %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{ project.title }}</h5>
+            <p>{{ project.description|truncatewords:30 }}</p>
+            <a
+              href="{% url 'core:project_detail' project.id %}"
+              class="btn btn-primary"
+              >التفاصيل</a
+            >
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p>لا توجد مشاريع سابقة</p>
+      {% endfor %}
+    </div>
+  </div>
+  {% endblock %}
+</div>

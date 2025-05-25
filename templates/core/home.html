@@ -1,0 +1,52 @@
+{% extends "base.html" %} {% block content %}
+<div class="container">
+  <div class="projects-section">
+    <h2>المشاريع القادمة</h2>
+    <div class="projects-grid">
+      {% for project in upcoming_projects %}
+      <div class="project-card">
+        <h3>{{ project.title }}</h3>
+        <p>الموعد: {{ project.presentation_time|date:"l g:i A" }}</p>
+        <p>المكان: {{ project.location }}</p>
+        <div class="project-actions">
+          <a
+            href="{% url 'core:project_detail' project.pk %}"
+            class="btn btn-primary"
+            >التفاصيل</a
+          >
+          <a
+            href="{% url 'core:evaluate_project' project.pk %}"
+            class="btn btn-secondary"
+            >تقييم المشروع</a
+          >
+        </div>
+      </div>
+      {% empty %}
+      <p>لا توجد مشاريع قادمة</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="projects-section">
+    <h2>المشاريع السابقة</h2>
+    <div class="projects-grid">
+      {% for project in past_projects %}
+      <div class="project-card">
+        <h3>{{ project.title }}</h3>
+        <p>تم العرض في: {{ project.presentation_time|date:"l g:i A" }}</p>
+        <p>المكان: {{ project.location }}</p>
+        <div class="project-actions">
+          <a
+            href="{% url 'core:project_detail' project.pk %}"
+            class="btn btn-primary"
+            >التفاصيل</a
+          >
+        </div>
+      </div>
+      {% empty %}
+      <p>لا توجد مشاريع سابقة</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
